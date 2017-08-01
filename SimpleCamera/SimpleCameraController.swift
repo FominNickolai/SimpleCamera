@@ -137,7 +137,7 @@ class SimpleCameraController: UIViewController {
     func zoomOut() {
         if let zoomFactor = currentDevice?.videoZoomFactor {
             if zoomFactor > 1.0 {
-                let newZoomFactor = max(zoomFactor + 1.0, 1.0)
+                let newZoomFactor = max(zoomFactor - 1.0, 1.0)
                 do {
                     try currentDevice?.lockForConfiguration()
                     currentDevice?.ramp(toVideoZoomFactor: newZoomFactor, withRate: 1.0)
