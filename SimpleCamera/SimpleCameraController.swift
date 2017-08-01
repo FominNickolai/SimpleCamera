@@ -74,6 +74,15 @@ class SimpleCameraController: UIViewController {
     // MARK: - Action methods
     
     @IBAction func capture(sender: UIButton) {
+        let videoConnection = stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
+        stillImageOutput?.captureStillImageAsynchronously(from: videoConnection, completionHandler: { (imageDataSampleBuffer, error) in
+            
+            if let imageData = AVCaptureStillImageOutput.jpegStillImageNSDataRepresentation(imageDataSampleBuffer) {
+                self.stillImage = UIImage(data: imageData)
+                self.performSegue(withIdentifier: "showPhoto", sender: self)
+            }
+            
+        })
     }
 
     // MARK: - Segues
