@@ -23,6 +23,8 @@ class SimpleCameraController: UIViewController {
     
     var cameraPreviewLayer: AVCaptureVideoPreviewLayer?
     
+    var toggleCameraGestureRecognizer = UISwipeGestureRecognizer()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -64,6 +66,11 @@ class SimpleCameraController: UIViewController {
         //Bring the camera button to front
         view.bringSubview(toFront: cameraButton)
         captureSession.startRunning()
+        
+        //Toggle Camera recognizer
+        toggleCameraGestureRecognizer.direction = .up
+        toggleCameraGestureRecognizer.addTarget(self, action: #selector(toggleCamera))
+        view.addSubview(toggleCameraGestureRecognizer)
     }
 
     override func didReceiveMemoryWarning() {
@@ -72,6 +79,34 @@ class SimpleCameraController: UIViewController {
     }
     
     // MARK: - Action methods
+    
+    func toggleCamera() {
+        captureSession.beginConfiguration()
+        
+        //Changed the device based on the current camera
+        let newDevice = (currentDevice?.position == AVCaptureDevicePosition.back) ? frontFacingCamera : backFacingCamera
+        
+        //remove all inputs from session
+        for input in captureSession.inputs {
+            captureSession.removeInput(input as! AVCaptureDeviceInput)
+        }
+        
+        //Change to the new input
+        let cameraInput: AVCaptureDeviceInput
+        do {
+            cameraInput = try AVCaptureDeviceInput(device: newDevice)
+        } catch {
+            print(error)
+            return
+        }
+        
+        if captureSession.canAddInput(cameraInput) {
+            captureSession.addInput(cameraInput)
+        }
+        
+        currentDevice = newDevice
+        captureSession.commitConfiguration()
+    }
     
     @IBAction func capture(sender: UIButton) {
         let videoConnection = stillImageOutput?.connection(withMediaType: AVMediaTypeVideo)
