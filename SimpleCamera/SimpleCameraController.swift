@@ -70,7 +70,7 @@ class SimpleCameraController: UIViewController {
         //Toggle Camera recognizer
         toggleCameraGestureRecognizer.direction = .up
         toggleCameraGestureRecognizer.addTarget(self, action: #selector(toggleCamera))
-        view.addSubview(toggleCameraGestureRecognizer)
+        view.addGestureRecognizer(toggleCameraGestureRecognizer)
     }
 
     override func didReceiveMemoryWarning() {
