@@ -7,15 +7,50 @@
 //
 
 import UIKit
+import AVFoundation
 
 class SimpleCameraController: UIViewController {
 
     @IBOutlet var cameraButton:UIButton!
+    let captureSession = AVCaptureSession()
+    
+    var backFacingCamera: AVCaptureDevice?
+    var frontFacingCamera: AVCaptureDevice?
+    var currentDevice: AVCaptureDevice?
+    
+    var stillImageOutput: AVCaptureStillImageOutput?
+    var stillImage: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        // Do any additional setup after loading the view.
+        //Present the session for taking photot in full resolution
+        captureSession.sessionPreset = AVCaptureSessionPresetPhoto
+        
+        let devices = AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo) as! [AVCaptureDevice]
+        //Get the font and back-facing camera for taking photos
+        for device in devices {
+            if device.position == AVCaptureDevicePosition.back {
+                backFacingCamera = device
+            } else if device.position == AVCaptureDevicePosition.front {
+                frontFacingCamera = device
+            }
+        }
+        currentDevice = backFacingCamera
+        
+        do {
+            let captureDeviceInput = try AVCaptureDeviceInput(device: currentDevice)
+            
+            //Configure  the session with the input and the output devices
+            captureSession.addInput(captureDeviceInput)
+            captureSession.addOutput(stillImageOutput)
+        } catch {
+            print(error)
+        }
+        
+        //Configure the session with the output for capturing still images
+        stillImageOutput = AVCaptureStillImageOutput()
+        stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
     }
 
     override func didReceiveMemoryWarning() {
