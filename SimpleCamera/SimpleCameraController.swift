@@ -24,6 +24,8 @@ class SimpleCameraController: UIViewController {
     var cameraPreviewLayer: AVCaptureVideoPreviewLayer?
     
     var toggleCameraGestureRecognizer = UISwipeGestureRecognizer()
+    var zoomInGestureRecognizer = UISwipeGestureRecognizer()
+    var zoomOutgestureRecognizer = UISwipeGestureRecognizer()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -71,6 +73,15 @@ class SimpleCameraController: UIViewController {
         toggleCameraGestureRecognizer.direction = .up
         toggleCameraGestureRecognizer.addTarget(self, action: #selector(toggleCamera))
         view.addGestureRecognizer(toggleCameraGestureRecognizer)
+        
+        //ZoomInGesture
+        zoomInGestureRecognizer.direction = .right
+        zoomInGestureRecognizer.addTarget(self, action: #selector(zoomIn))
+        view.addGestureRecognizer(zoomInGestureRecognizer)
+        //ZoomOutGesture
+        zoomOutgestureRecognizer.direction = .left
+        zoomOutgestureRecognizer.addTarget(self, action: #selector(zoomOut))
+        view.addGestureRecognizer(zoomOutgestureRecognizer)
     }
 
     override func didReceiveMemoryWarning() {
@@ -106,6 +117,36 @@ class SimpleCameraController: UIViewController {
         
         currentDevice = newDevice
         captureSession.commitConfiguration()
+    }
+    
+    func zoomIn() {
+        if let zoomFactor = currentDevice?.videoZoomFactor {
+            if zoomFactor < 5.0 {
+                let newZoomFactor = min(zoomFactor + 1.0, 5.0)
+                do {
+                    try currentDevice?.lockForConfiguration()
+                    currentDevice?.ramp(toVideoZoomFactor: newZoomFactor, withRate: 1.0)
+                    currentDevice?.unlockForConfiguration()
+                } catch {
+                    print(error)
+                }
+            }
+        }
+    }
+    
+    func zoomOut() {
+        if let zoomFactor = currentDevice?.videoZoomFactor {
+            if zoomFactor > 1.0 {
+                let newZoomFactor = max(zoomFactor + 1.0, 1.0)
+                do {
+                    try currentDevice?.lockForConfiguration()
+                    currentDevice?.ramp(toVideoZoomFactor: newZoomFactor, withRate: 1.0)
+                    currentDevice?.unlockForConfiguration()
+                } catch {
+                    print(error)
+                }
+            }
+        }
     }
     
     @IBAction func capture(sender: UIButton) {
