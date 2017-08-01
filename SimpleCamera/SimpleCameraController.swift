@@ -21,6 +21,8 @@ class SimpleCameraController: UIViewController {
     var stillImageOutput: AVCaptureStillImageOutput?
     var stillImage: UIImage?
     
+    var cameraPreviewLayer: AVCaptureVideoPreviewLayer?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -38,6 +40,11 @@ class SimpleCameraController: UIViewController {
         }
         currentDevice = backFacingCamera
         
+        
+        //Configure the session with the output for capturing still images
+        stillImageOutput = AVCaptureStillImageOutput()
+        stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+        
         do {
             let captureDeviceInput = try AVCaptureDeviceInput(device: currentDevice)
             
@@ -48,9 +55,15 @@ class SimpleCameraController: UIViewController {
             print(error)
         }
         
-        //Configure the session with the output for capturing still images
-        stillImageOutput = AVCaptureStillImageOutput()
-        stillImageOutput?.outputSettings = [AVVideoCodecKey: AVVideoCodecJPEG]
+        //Provide a camera preview
+        cameraPreviewLayer = AVCaptureVideoPreviewLayer(session: captureSession)
+        view.layer.addSublayer(cameraPreviewLayer!)
+        cameraPreviewLayer?.videoGravity = AVLayerVideoGravityResizeAspectFill
+        cameraPreviewLayer?.frame = view.layer.frame
+        
+        //Bring the camera button to front
+        view.bringSubview(toFront: cameraButton)
+        captureSession.startRunning()
     }
 
     override func didReceiveMemoryWarning() {
