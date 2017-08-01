@@ -87,6 +87,15 @@ class SimpleCameraController: UIViewController {
 
     // MARK: - Segues
     
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        //Get the new controller using
+        //Pass the selected ogject to the new view controller
+        if segue.identifier == "showPhoto" {
+            let photoController = segue.destination as! PhotoViewController
+            photoController.image = stillImage
+        }
+    }
+    
     @IBAction func unwindToCameraView(segue: UIStoryboardSegue) {
     
     }
